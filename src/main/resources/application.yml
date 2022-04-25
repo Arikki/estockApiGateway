@@ -1,0 +1,114 @@
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: api-gateway
+
+server:
+  port: 8083
+spring:
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+      routes:
+        - id: COMPANY-SERVICE
+          uri: lb://COMPANYSERVICE
+          predicates:
+            - Path=/api/v1.0/market/company/**
+#          filters:
+#            - name: CircuitBreaker
+#              args:
+#                name: COMPANY-SERVICE
+#                fallbackuri: forward:/serviceFallBack
+        - id: STOCK-SERVICE
+          uri: lb://STOCKSERVICE
+          predicates:
+            - Path=/api/v1.0/market/stock/**
+#          filters:
+#            - name: CircuitBreaker
+#              args:
+#                name: CLAIM-SERVICE
+#                fallbackuri: forward:/serviceFallBack
+        - id: PROFILE-SERVICE
+          uri: lb://PROFILESERVICE
+          predicates:
+            - Path=/profile/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: PROFILE-SERVICE
+                fallbackuri: forward:/serviceFallBack           
+
+#spring:
+#  application:
+#    name: API-GATEWAY
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: AUTH-SERVICE
+#          uri: lb://AUTHSERVICE
+#          predicates:
+#            - Path=/login,/signup,/basicDetails/**
+#          filters:
+#            - name: CircuitBreaker
+#              args:
+#                name: AUTH-SERVICE
+#                fallbackuri: forward:/serviceFallBack
+#        - id: CLAIM-SERVICE
+#          uri: lb://CLAIMSERVICE
+#          predicates:
+#            - Path=/claims
+#          filters:
+#            - name: CircuitBreaker
+#              args:
+#                name: CLAIM-SERVICE
+#                fallbackuri: forward:/serviceFallBack
+#        - id: PROFILE-SERVICE
+#          uri: lb://PROFILESERVICE
+#          predicates:
+#            - Path=/profile/**
+#          filters:
+#            - name: CircuitBreaker
+#              args:
+#                name: PROFILE-SERVICE
+#                fallbackuri: forward:/serviceFallBack           
+
+
+#hystrix:
+#  command:
+#    fallbackcmd:
+#      execution:
+#        isolation:
+#          thread:
+#            timeoutInMilliseconds: 4000
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics
+        
+#spring:
+#  cloud:
+#    gateway:
+#      globalcors:
+#        add-to-simple-url-handler-mapping: true
+#        cors-configurations:
+#          '[/**]':
+#            allowedOrigins: "http://localhost:4200/**"
+#            allowedMethods: "*"
+            
